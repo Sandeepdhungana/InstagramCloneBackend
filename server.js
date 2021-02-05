@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import { mongoURL } from "./keys.js";
 import "./models/userModel.js";
 import "./models/post.js";
+import cors from 'cors';
 import router from "./routes/auth.js";
 import post from "./routes/post.js";
 mongoose.model("User");
@@ -13,10 +14,13 @@ const app = express();
 const PORT = 5000;
 // setting up the middlewares.
 
+app.use(cors());
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
 app.use(router);
 app.use(post);
-
 mongoose.connect(mongoURL, {
   useNewUrlParser: true,
   useUnifiedTopology: true,

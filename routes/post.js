@@ -15,15 +15,17 @@ router.get("/allpost", (req, res) => {
 });
 
 router.post("/createpost", requireLogin, (req, res) => {
-  const { title, body } = req.body;
-  console.log(title, body);
-  if (!title || !body) {
+  const { title, body, picUrl } = req.body;
+  console.log(title, body,picUrl);
+  console.log("Inside sercer",picUrl);
+  if (!title || !body || !picUrl) {
     return res.status(422).json({ message: "please add all the fields." });
   }
   req.user.password = undefined;
   const post = new Post({
     title,
     body,
+    photo: picUrl,
     postedBy: req.user,
   });
   post
@@ -35,8 +37,8 @@ router.post("/createpost", requireLogin, (req, res) => {
       console.log(err);
     });
 });
- 
-router.get("/mypost", requireLogin, (req, res) => {
+
+router.get("/mypost", (req, res) => {
   Post.find({ postedBy: req.user._id })
     .populate("postedBy", "_id name")
     .then((myPost) => {

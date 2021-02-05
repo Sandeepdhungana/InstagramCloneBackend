@@ -11,8 +11,9 @@ const router = new express.Router();
 
 
 router.post("/signup", (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password,username } = req.body;
   if (!email || !password || !name) {
+    console.log("error occured");
     return res.status(422).json({ error: "please add all the fields" });
   }
   // res.json({message:"succesfully posted"})
@@ -27,6 +28,7 @@ router.post("/signup", (req, res) => {
           const user = new User({
             name,
             email,
+            username,
             password: hash,
           });
           user
