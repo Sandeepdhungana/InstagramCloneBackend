@@ -15,15 +15,18 @@ const PORT = 5000;
 // setting up the middlewares.
 
 app.use(cors());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-  extended: true
-}));
+// app.use(bodyParser.json());
+// app.use(bodyParser.urlencoded({
+//   extended: true
+// }));
+app.use(express.json())
+app.use(express.urlencoded({extended: true}))
 app.use(router);
 app.use(post);
 mongoose.connect(mongoURL, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+  useFindAndModify:false
 });
 
 mongoose.connection.on("connected", () => {

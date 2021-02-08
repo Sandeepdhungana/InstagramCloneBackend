@@ -7,7 +7,9 @@ import requireLogin from "../middleware/requireLogin.js";
 
 router.get("/allpost", (req, res) => {
   Post.find()
+    .sort({ timestamp: -1 })
     .populate("postedBy", "_id name")
+    .populate([{path:"comments", populate:{path:"postedBy", select:"name"}}])
     .then((posts) => {
       res.json({ posts });
     })
@@ -16,11 +18,10 @@ router.get("/allpost", (req, res) => {
 
 router.post("/createpost", requireLogin, (req, res) => {
   const { title, body, picUrl } = req.body;
-  console.log(title, body,picUrl);
-  console.log("Inside sercer",picUrl);
   if (!title || !body || !picUrl) {
     return res.status(422).json({ message: "please add all the fields." });
   }
+  
   req.user.password = undefined;
   const post = new Post({
     title,
@@ -38,9 +39,9 @@ router.post("/createpost", requireLogin, (req, res) => {
     });
 });
 
-router.get("/mypost", (req, res) => {
+router.get("/mypost",requireLogin, (req, res) => {
   Post.find({ postedBy: req.user._id })
-    .populate("postedBy", "_id name")
+    .populate("postedBy", "_id name username")
     .then((myPost) => {
       res.json({ myPost });
     })
@@ -48,5 +49,52 @@ router.get("/mypost", (req, res) => {
       console.log(err);
     });
 });
+
+
+router.put("/like", requireLogin, (req, res) => {
+  Post.findByIdAndUpdate(req.body._id, {
+    $push: {likes:req.user._id}
+  },{
+    new:true
+  }).exec((err,result) => {
+    if(err) {
+      return res.status(422).json({error:err})
+    } else {
+      res.json({result})
+    }
+  })
+})
+router.put("/unlike", requireLogin, (req, res) => {
+  Post.findByIdAndUpdate(req.body._id, {
+    $pull: {likes:req.user._id}
+  },{
+    new:true
+  }).exec((err,result) => {
+    if(err) {
+      return res.status(422).json({error:err})
+    } else {
+      res.json({result})
+    }
+  })
+})
+router.put("/comments", requireLogin, (req, res) => {
+  console.log(req.body);
+  const comment = {
+    text:req.body.text,
+    postedBy:req.user._id
+  }
+  console.log(req);
+  Post.findByIdAndUpdate(req.body._id, {
+    $push: {comments: comment}
+  },{
+    new:true
+  }).exec((err,result) => {
+    if(err) {
+      return res.status(422).json({error:err})
+    } else {
+      res.json({result})
+    }
+  })
+})
 
 export default router;
