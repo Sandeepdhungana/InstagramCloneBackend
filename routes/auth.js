@@ -75,4 +75,17 @@ router.post("/login", (req, res) => {
   });
 });
 
+router.get('/allusers',requireLogin, (req, res) => {
+  const id = req.user._id
+  User.find({_id:{$ne:id}}, (err, alluser) => {
+    if(err) {
+      console.log("error occured");
+      console.log(err);
+    } else {
+      // console.log(alluser);
+      res.json({alluser})
+    }
+  })
+})
+
 export default router;
