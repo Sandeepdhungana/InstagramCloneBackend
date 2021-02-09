@@ -3,15 +3,14 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../keys.js";
-import requireLogin from '../middleware/requireLogin.js'
+import requireLogin from "../middleware/requireLogin.js";
 
 const User = mongoose.model("User");
 
 const router = new express.Router();
 
-
 router.post("/signup", (req, res) => {
-  const { name, email, password,username } = req.body;
+  const { name, email, password, username } = req.body;
   if (!email || !password || !name) {
     console.log("error occured");
     return res.status(422).json({ error: "please add all the fields" });
@@ -62,10 +61,10 @@ router.post("/login", (req, res) => {
       .compare(password, user.password)
       .then((isMatched) => {
         if (isMatched) {
-        //   res.json({ message: "successfully signed in" });
-        const token = jwt.sign({_id:user._id},JWT_SECRET)
-        const {_id, name, email,username} = user;
-        res.json({token, user:{_id,name,email,username}})
+          //   res.json({ message: "successfully signed in" });
+          const token = jwt.sign({ _id: user._id }, JWT_SECRET);
+          const { _id, name, email, username } = user;
+          res.json({ token, user: { _id, name, email, username } });
         } else {
           res.status(422).json({ error: "Invalid email or password" });
         }
