@@ -8,6 +8,7 @@ import "./models/post.js";
 import cors from 'cors';
 import router from "./routes/auth.js";
 import post from "./routes/post.js";
+import user from "./routes/user.js";
 mongoose.model("User");
 
 const app = express();
@@ -23,6 +24,7 @@ app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 app.use(router);
 app.use(post);
+app.use(user);
 mongoose.connect(mongoURL, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
