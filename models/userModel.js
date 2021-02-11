@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+const { ObjectId } = mongoose.Schema.Types;
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -9,6 +10,8 @@ const userSchema = new mongoose.Schema({
         type: 'string',
         required: true
     },
+    followers: [{type:ObjectId,ref: "User"}],
+    following: [{type:ObjectId,ref: "User"}],
     username: {
         type: 'string',
         required: true

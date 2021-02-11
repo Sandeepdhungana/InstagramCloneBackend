@@ -43,7 +43,7 @@ router.post("/createpost", requireLogin, (req, res) => {
 
 router.get("/mypost", requireLogin, (req, res) => {
   Post.find({ postedBy: req.user._id })
-    .populate("postedBy", "_id name username")
+    .populate("postedBy", "_id name username following followers")
     .then((myPost) => {
       res.json({ myPost });
     })
@@ -109,13 +109,17 @@ router.put("/comments", requireLogin, (req, res) => {
 });
 
 router.delete("/delete/:_id", requireLogin, (req, res) => {
-  Post.findByIdAndDelete({ _id: req.params._id })
+  if(req.user._id === req.params._id) {
+    Post.findByIdAndDelete({ _id: req.params._id })
     .then((result) => {
       res.json({ result });
     })
     .catch((err) => {
       console.log(err);
     });
+  } else {
+    console.log("cannot delete");
+  }
 });
 
 export default router;

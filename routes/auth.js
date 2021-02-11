@@ -75,17 +75,105 @@ router.post("/login", (req, res) => {
   });
 });
 
-router.get('/allusers',requireLogin, (req, res) => {
-  const id = req.user._id
-  User.find({_id:{$ne:id}}, (err, alluser) => {
-    if(err) {
+// router.get("/allusers", requireLogin, (req, res) => {
+//   const id = req.user?._id;
+//   User.find({ _id: { $ne: id } })
+//     .select("-password")
+//     .then((alluser) => {
+//       res.json({ alluser });
+//     })
+//     .catch((err) => {
+//       console.log(err);
+//     });
+// });
+
+router.get("/allusers", requireLogin, (req, res) => {
+  const id = req.user?._id;
+  User.find({ _id: { $ne: id } }, (err, alluser) => {
+    if (err) {
       console.log("error occured");
       console.log(err);
     } else {
       // console.log(alluser);
-      res.json({alluser})
+      res.json({ alluser });
     }
-  })
-})
+  });
+});
+
+router.put("/unfollow", requireLogin, (req, res) => {
+  const currentUser = req.user._id;
+  const followedUser = req.body.followid;
+  User.findByIdAndUpdate(
+    followedUser,
+    {
+      $pull: { follwers: currentUser },
+    },
+    { new: true }
+  ).then((user) => {
+    User.findByIdAndUpdate(
+      currentUser,
+      {
+        $pull: { following: followedUser },
+      },
+      { new: true }
+    )
+      .select("-password")
+      .then((users) => {
+        res.json({ users });
+        console.log(users);
+      });
+  });
+});
+router.put("/follow", requireLogin, (req, res) => {
+  const currentUser = req.user?._id;
+  const followedUser = req.body.followid;
+  console.log(`${currentUser} follows ${followedUser}`);
+  User.findByIdAndUpdate(
+    followedUser,
+    {
+      $addToSet: { followers: currentUser },
+    },
+    { new: true },
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        User.findByIdAndUpdate(
+          currentUser,
+          {
+            $addToSet: { following: followedUser },
+          },
+          { new: true }
+        )
+          .select("-password -email")
+          .then((users) => {
+            res.json({ users });
+            console.log(users);
+          });
+      }
+    }
+  );
+
+  // User.findByIdAndUpdate(
+  //   followedUser,
+  //   {
+  //     $addToSet: { follwers: currentUser },
+  //   },
+  //   { new: true }
+  // ).then((user) => {
+  //   User.findByIdAndUpdate(
+  //     currentUser,
+  //     {
+  //       $addToSet: { following: followedUser },
+  //     },
+  //     { new: true }
+  //   )
+  //     .select("-password -email")
+  //     .then((users) => {
+  //       res.json({ users });
+  //       console.log(users);
+  //     });
+  // });
+});
 
 export default router;

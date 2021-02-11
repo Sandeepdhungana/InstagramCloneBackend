@@ -8,7 +8,7 @@ const Post = mongoose.model("Post");
 const User = mongoose.model("User");
 const router = new express.Router();
 
-router.get("/profile/:userid",(req, res) => {
+router.get("/profile/:userid",requireLogin,(req, res) => {
     User.find({_id:req.params.userid})
     .select("-password")
     .then((user) => {
