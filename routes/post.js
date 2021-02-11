@@ -108,8 +108,11 @@ router.put("/comments", requireLogin, (req, res) => {
   });
 });
 
-router.delete("/delete/:_id", requireLogin, (req, res) => {
-  if(req.user._id === req.params._id) {
+router.delete("/delete/:_id/:userid", requireLogin, (req, res) => {
+  console.log(req.user._id);
+  console.log(req.params.userid);
+  if(req.user._id.equals(req.params.userid)) {
+    console.log("deleted");
     Post.findByIdAndDelete({ _id: req.params._id })
     .then((result) => {
       res.json({ result });
@@ -118,7 +121,7 @@ router.delete("/delete/:_id", requireLogin, (req, res) => {
       console.log(err);
     });
   } else {
-    console.log("cannot delete");
+    // console.log("cannot delete");
   }
 });
 

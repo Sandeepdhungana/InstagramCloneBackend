@@ -101,28 +101,34 @@ router.get("/allusers", requireLogin, (req, res) => {
 });
 
 router.put("/unfollow", requireLogin, (req, res) => {
-  const currentUser = req.user._id;
+  const currentUser = req.user?._id;
   const followedUser = req.body.followid;
+  console.log(`${currentUser} follows ${followedUser}`);
   User.findByIdAndUpdate(
     followedUser,
     {
-      $pull: { follwers: currentUser },
+      $pull: { followers: currentUser },
     },
-    { new: true }
-  ).then((user) => {
-    User.findByIdAndUpdate(
-      currentUser,
-      {
-        $pull: { following: followedUser },
-      },
-      { new: true }
-    )
-      .select("-password")
-      .then((users) => {
-        res.json({ users });
-        console.log(users);
-      });
-  });
+    { new: true },
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        User.findByIdAndUpdate(
+          currentUser,
+          {
+            $pull: { following: followedUser },
+          },
+          { new: true }
+        )
+          .select("-password -email")
+          .then((users) => {
+            res.json({ users });
+            console.log(users);
+          });
+      }
+    }
+  );
 });
 router.put("/follow", requireLogin, (req, res) => {
   const currentUser = req.user?._id;
